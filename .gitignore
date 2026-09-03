@@ -1,0 +1,25 @@
+# Dependencies / runtime
+node_modules/
+vendor/
+
+# Uploaded files (jika ada)
+uploads/
+upload/
+*.pdf
+*.doc
+*.docx
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# MySQL / backup
+*.sql.bak
+*.bak
