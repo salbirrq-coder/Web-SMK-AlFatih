@@ -6,6 +6,7 @@ $pdo = db();
 
 $msg = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    sec_verify_csrf();
     $current = $_POST['current'] ?? '';
     $new = $_POST['newpass'] ?? '';
     $confirm = $_POST['confirm'] ?? '';
@@ -48,9 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="admin-card">
         <div class="card-head"><h3><i class="fas fa-key" style="color:var(--forest-500);margin-right:8px;"></i>Ubah Password</h3></div>
         <form method="POST">
-            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Password Saat Ini</label><input class="form-control" type="password" name="current" required></div>
-            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Password Baru</label><input class="form-control" type="password" name="newpass" required></div>
-            <div class="form-group" style="margin-bottom:22px;"><label class="form-label">Konfirmasi Password Baru</label><input class="form-control" type="password" name="confirm" required></div>
+            <?php echo sec_csrf_field(); ?>
+            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Password Saat Ini</label><input class="form-control" type="password" name="current" required autocomplete="current-password"></div>
+            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Password Baru</label><input class="form-control" type="password" name="newpass" required minlength="6" autocomplete="new-password"></div>
+            <div class="form-group" style="margin-bottom:22px;"><label class="form-label">Konfirmasi Password Baru</label><input class="form-control" type="password" name="confirm" required autocomplete="new-password"></div>
             <button type="submit" class="btn btn-green"><i class="fas fa-save"></i> Simpan Password</button>
         </form>
     </div>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/security.php';
 
 /**
  * Escape output untuk XSS safety.
@@ -111,8 +112,34 @@ function handle_upload($fileKey, $folder, $required = false) {
         return ['error' => 'Tipe file tidak diizinkan. Gunakan JPG, PNG, WEBP, atau PDF.'];
     }
 
+    // Validasi MIME berdasarkan isi file (bukan hanya ekstensi)
+    $allowedMime = [
+        'jpg'  => ['image/jpeg'],
+        'jpeg' => ['image/jpeg'],
+        'png'  => ['image/png'],
+        'webp' => ['image/webp'],
+        'pdf'  => ['application/pdf'],
+    ];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime  = $finfo ? finfo_file($finfo, $file['tmp_name']) : '';
+    if ($finfo) finfo_close($finfo);
+    if (!in_array($mime, $allowedMime[$ext] ?? [], true)) {
+        return ['error' => 'Isi file tidak cocok dengan ekstensi. File tidak diizinkan.'];
+    }
+    // Untuk gambar, verifikasi data bitmap benar
+    if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+        $img = @getimagesize($file['tmp_name']);
+        if ($img === false) {
+            return ['error' => 'File gambar tidak valid atau korup.'];
+        }
+    }
+
     $uploadDir = __DIR__ . '/../assets/uploads/' . $folder . '/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+    // Blokir eksekusi script di dalam folder upload (pertahanan berlapis)
+    if (!file_exists($uploadDir . '.htaccess')) {
+        @file_put_contents($uploadDir . '.htaccess', "Options -Indexes\n<FilesMatch \"\\.(php|phtml|php3|php4|php5|phar)$\">\nOrder Allow,Deny\nDeny from all\n</FilesMatch>\n");
+    }
 
     $filename = $folder . '_' . time() . '_' . substr(md5(uniqid()), 0, 8) . '.' . $ext;
     if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {

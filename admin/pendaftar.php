@@ -235,6 +235,7 @@ $statusTabs = [
             <form method="POST" action="<?php echo SITE_URL; ?>admin/pendaftar-action.php">
                 <input type="hidden" name="id" id="acceptId">
                 <input type="hidden" name="action" value="terima">
+                <?php echo sec_csrf_field(); ?>
                 <label class="form-label">Ucapan Selamat (opsional)</label>
                 <textarea class="form-control" name="catatan" rows="3" placeholder="Pesan selamat yang tampil di hasil cek status..."></textarea>
                 <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">
@@ -259,6 +260,7 @@ $statusTabs = [
             <form method="POST" action="<?php echo SITE_URL; ?>admin/pendaftar-action.php">
                 <input type="hidden" name="id" id="rejectId">
                 <input type="hidden" name="action" value="tolak">
+                <?php echo sec_csrf_field(); ?>
                 <label class="form-label">Alasan Penolakan <span class="req">*</span></label>
                 <textarea class="form-control" name="catatan" rows="4" id="rejectCatatan" placeholder="Tuliskan alasan mengapa siswa ditolak, misalnya: berkas tidak lengkap, data tidak sesuai, kuota penuh, dll."></textarea>
                 <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">
@@ -282,6 +284,7 @@ $statusTabs = [
             <form method="POST" action="<?php echo SITE_URL; ?>admin/pendaftar-action.php">
                 <input type="hidden" name="id" id="revertId">
                 <input type="hidden" name="action" value="kembalikan">
+                <?php echo sec_csrf_field(); ?>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
                     <button type="button" class="btn btn-outline-green" onclick="closeModal('revertModal')">Batal</button>
                     <button type="submit" class="btn btn-green"><i class="fas fa-rotate-left"></i> Ya, Kembalikan</button>
@@ -293,7 +296,7 @@ $statusTabs = [
 
 <script>
 // Store pendaftar data for detail
-var pendaftarData = <?php echo json_encode($pendaftar); ?>;
+var pendaftarData = <?php echo json_encode($pendaftar, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
 function esc(s) {
     if (s === null || s === undefined) return '-';

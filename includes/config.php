@@ -43,9 +43,15 @@ define('SOCIAL_YOUTUBE', 'https://www.youtube.com/@SMKTAHFIZHALFATIH');
 define('SOCIAL_INSTAGRAM', 'https://linktr.ee/smktahfizhalfatih.media');
 define('SOCIAL_FACEBOOK', 'https://www.facebook.com/share/17vsTQo3o1/');
 
-// Session
+// Session (dengan konfigurasi cookie aman)
+require_once __DIR__ . '/security.php';
 if (session_status() === PHP_SESSION_NONE) {
+    sec_session_config();
     session_start();
+}
+sec_security_headers();
+if (function_exists('sec_session_timeout')) {
+    sec_session_timeout();
 }
 
 // Upload settings

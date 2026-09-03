@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/admin_header.php';
 $pdo = db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    sec_verify_csrf();
     $action = $_POST['action'] ?? '';
     $id = (int)($_POST['id'] ?? 0);
     if ($action === 'add' || $action === 'edit') {
@@ -42,6 +43,7 @@ $items = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC, id DESC")->fet
     <div class="card-head"><h3><i class="fas fa-newspaper" style="color:var(--forest-500);margin-right:8px;"></i>Tambah Berita</h3></div>
     <form method="POST" enctype="multipart/form-data">
         <input type="hidden" name="action" value="add">
+        <?php echo sec_csrf_field(); ?>
         <div class="form-grid">
             <div class="form-group"><label class="form-label">Judul <span class="req">*</span></label><input class="form-control" name="judul" required></div>
             <div class="form-group"><label class="form-label">Kategori</label><input class="form-control" name="kategori" value="Umum"></div>
@@ -68,6 +70,7 @@ $items = $pdo->query("SELECT * FROM berita ORDER BY tanggal DESC, id DESC")->fet
                     <td><?php echo format_date($it['tanggal']); ?></td>
                     <td>
                         <form method="POST" onsubmit="return confirm('Hapus berita ini?');">
+                            <?php echo sec_csrf_field(); ?>
                             <input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?php echo $it['id']; ?>">
                             <button type="submit" class="action-btn action-red"><i class="fas fa-trash"></i></button>
                         </form>

@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/admin_header.php';
 $pdo = db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    sec_verify_csrf();
     $action = $_POST['action'] ?? '';
     $id = (int)($_POST['id'] ?? 0);
     if ($action === 'add' || $action === 'edit') {
@@ -40,6 +41,7 @@ $items = $pdo->query("SELECT * FROM fasilitas ORDER BY id")->fetchAll();
     <div class="card-head"><h3><i class="fas fa-building" style="color:var(--forest-500);margin-right:8px;"></i>Tambah Fasilitas</h3></div>
     <form method="POST" enctype="multipart/form-data">
         <input type="hidden" name="action" value="add">
+        <?php echo sec_csrf_field(); ?>
         <div class="form-grid">
             <div class="form-group"><label class="form-label">Nama <span class="req">*</span></label><input class="form-control" name="nama" required></div>
             <div class="form-group"><label class="form-label">Gambar</label><input class="form-control" type="file" name="gambar" accept=".jpg,.jpeg,.png,.webp"></div>
@@ -65,6 +67,7 @@ $items = $pdo->query("SELECT * FROM fasilitas ORDER BY id")->fetchAll();
                         <div style="display:flex;gap:6px;">
                             <button class="action-btn action-green" onclick="editFasilitas(<?php echo $it['id']; ?>)"><i class="fas fa-pen"></i></button>
                             <form method="POST" onsubmit="return confirm('Hapus fasilitas ini?');">
+                                <?php echo sec_csrf_field(); ?>
                                 <input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?php echo $it['id']; ?>">
                                 <button type="submit" class="action-btn action-red"><i class="fas fa-trash"></i></button>
                             </form>
@@ -79,14 +82,14 @@ $items = $pdo->query("SELECT * FROM fasilitas ORDER BY id")->fetchAll();
 </div>
 
 <script>
-var fasData = <?php echo json_encode($items); ?>;
+var fasData = <?php echo json_encode($items, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 function editFasilitas(id) {
     var it = fasData.find(function(x){ return x.id == id; });
     if (!it) return;
     var f = document.getElementById('editForm');
     if (!f) {
         f = document.createElement('form'); f.method='POST'; f.id='editForm'; f.style.display='none'; document.body.appendChild(f);
-        f.innerHTML = '<input type="hidden" name="action" value="edit"><input type="hidden" name="id" id="ffId"><input type="text" name="nama" id="ffNama"><textarea name="deskripsi" id="ffDesk"></textarea><button id="ffSubmit" type="submit"></button>';
+        f.innerHTML = '<input type="hidden" name="csrf_token" value="<?php echo e(sec_csrf_token()); ?>"><input type="hidden" name="action" value="edit"><input type="hidden" name="id" id="ffId"><input type="text" name="nama" id="ffNama"><textarea name="deskripsi" id="ffDesk"></textarea><button id="ffSubmit" type="submit"></button>';
     }
     document.getElementById('ffId').value=it.id; document.getElementById('ffNama').value=it.nama; document.getElementById('ffDesk').value=it.deskripsi; document.getElementById('ffSubmit').click();
 }

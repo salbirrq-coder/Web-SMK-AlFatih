@@ -39,7 +39,7 @@ $flashes = get_flash();
 
 <?php if (!empty($flashes)): ?>
 <script>
-    const flashes = <?php echo json_encode($flashes); ?>;
+    const flashes = <?php echo json_encode($flashes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     document.addEventListener('DOMContentLoaded', function() {
         flashes.forEach(function(f) {
             showToast(f.type, f.message);

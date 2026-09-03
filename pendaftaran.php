@@ -10,6 +10,14 @@ $nomor = null;
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    sec_verify_csrf();
+    // Honeypot: field tersembunyi "website" harus kosong (menangkal bot spam)
+    if (!empty($_POST['website'])) {
+        require_once __DIR__ . '/includes/header.php';
+        echo '<div class="container" style="padding:120px 20px 80px;text-align:center;"><div class="alert alert-error" style="max-width:480px;margin:0 auto;"><i class="fas fa-robot"></i> <div>Deteksi aktivitas bot. Kiriman Anda tidak diproses.</div></div></div>';
+        require_once __DIR__ . '/includes/footer.php';
+        exit;
+    }
     $d = $_POST;
 
     // Validate required
@@ -127,6 +135,8 @@ require_once __DIR__ . '/includes/header.php';
     <?php else: ?>
         <!-- FORM -->
         <form action="" method="POST" enctype="multipart/form-data" class="form-card reveal">
+            <?php echo sec_csrf_field(); ?>
+            <input type="text" name="website" value="" style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;opacity:0;" tabindex="-1" autocomplete="off" aria-hidden="true">
             <!-- Data Siswa -->
             <div class="form-section">
                 <div class="form-section-header">

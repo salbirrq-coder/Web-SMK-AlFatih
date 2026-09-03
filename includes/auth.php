@@ -2,10 +2,16 @@
 require_once __DIR__ . '/db.php';
 
 /**
- * Cek apakah admin sudah login.
+ * Cek apakah admin sudah login (dengan validasi fingerprint sesi).
  */
 function is_logged_in() {
-    return isset($_SESSION['admin_id']);
+    if (!isset($_SESSION['admin_id'])) return false;
+    // Perlindungan session hijacking: pastikan User-Agent masih sesuai
+    if (empty($_SESSION['fingerprint']) || $_SESSION['fingerprint'] !== sec_fingerprint()) {
+        session_unset();
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -38,7 +44,18 @@ function attempt_login($emailOrUsername, $password) {
     if ($admin && password_verify($password, $admin['password'])) {
         session_regenerate_id(true);
         $_SESSION['admin_id'] = $admin['id'];
+        $_SESSION['login_time'] = time();
+        $_SESSION['last_activity'] = time();
+        $_SESSION['fingerprint'] = sec_fingerprint();
         return $admin;
     }
     return null;
+}
+
+/**
+ * Fingerprint untuk mengikat sesi ke browser (mitigasi session hijacking).
+ */
+function sec_fingerprint() {
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    return hash('sha256', $ua);
 }

@@ -6,6 +6,7 @@ $pdo = db();
 
 // CRUD
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    sec_verify_csrf();
     $action = $_POST['action'] ?? '';
     $id = (int)($_POST['id'] ?? 0);
 
@@ -43,6 +44,7 @@ $items = $pdo->query("SELECT * FROM pengumuman ORDER BY tanggal DESC, id DESC")-
     <div class="card-head"><h3><i class="fas fa-bullhorn" style="color:var(--forest-500);margin-right:8px;"></i>Tambah Pengumuman</h3></div>
     <form method="POST">
         <input type="hidden" name="action" value="add">
+        <?php echo sec_csrf_field(); ?>
         <div class="form-grid">
             <div class="form-group full"><label class="form-label">Judul <span class="req">*</span></label><input class="form-control" type="text" name="judul" required></div>
             <div class="form-group full"><label class="form-label">Tanggal</label><input class="form-control" type="date" name="tanggal" value="<?php echo date('Y-m-d'); ?>"></div>
@@ -69,6 +71,7 @@ $items = $pdo->query("SELECT * FROM pengumuman ORDER BY tanggal DESC, id DESC")-
                             <div style="display:flex;gap:6px;">
                                 <button class="action-btn action-green" onclick="editPengumuman(<?php echo $it['id']; ?>)"><i class="fas fa-pen"></i></button>
                                 <form method="POST" onsubmit="return confirm('Hapus pengumuman ini?');">
+                                    <?php echo sec_csrf_field(); ?>
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?php echo $it['id']; ?>">
                                     <button type="submit" class="action-btn action-red"><i class="fas fa-trash"></i></button>
@@ -84,7 +87,7 @@ $items = $pdo->query("SELECT * FROM pengumuman ORDER BY tanggal DESC, id DESC")-
 </div>
 
 <script>
-var pengData = <?php echo json_encode($items); ?>;
+var pengData = <?php echo json_encode($items, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 function editPengumuman(id) {
     var it = pengData.find(function(x){ return x.id == id; });
     if (!it) return;
@@ -96,7 +99,7 @@ function editPengumuman(id) {
         f.id = 'editForm';
         f.style.display = 'none';
         document.body.appendChild(f);
-        f.innerHTML = '<input type="hidden" name="action" value="edit">' +
+        f.innerHTML = '<input type="hidden" name="csrf_token" value="<?php echo e(sec_csrf_token()); ?>"><input type="hidden" name="action" value="edit">' +
             '<input type="hidden" name="id" id="efId">' +
             '<input type="text" name="judul" id="efJudul">' +
             '<input type="date" name="tanggal" id="efTanggal">' +

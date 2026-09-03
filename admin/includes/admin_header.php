@@ -34,7 +34,7 @@ $verifikasiCount = (int)$pdo->query("SELECT COUNT(*) FROM pendaftar WHERE status
 <?php foreach (get_flash() as $f): ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    showToast('<?php echo $f['type']; ?>', '<?php echo addslashes($f['message']); ?>');
+    showToast(<?php echo json_encode($f['type'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>, <?php echo json_encode($f['message'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>);
 });
 </script>
 <?php endforeach; ?>

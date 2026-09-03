@@ -12,17 +12,25 @@ if (is_logged_in()) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $identity = trim($_POST['identity'] ?? '');
-    $password = $_POST['password'] ?? '';
-    if ($identity === '' || $password === '') {
-        $error = 'Username/email dan password wajib diisi.';
+    sec_verify_csrf();
+    $throttle = sec_login_throttle_allowed();
+    if (!$throttle['allowed']) {
+        $error = $throttle['message'];
     } else {
-        $admin = attempt_login($identity, $password);
-        if ($admin) {
-            header('Location: ' . SITE_URL . 'admin/dashboard.php');
-            exit;
+        $identity = trim($_POST['identity'] ?? '');
+        $password = $_POST['password'] ?? '';
+        if ($identity === '' || $password === '') {
+            $error = 'Username/email dan password wajib diisi.';
         } else {
-            $error = 'Username/email atau password salah.';
+            $admin = attempt_login($identity, $password);
+            if ($admin) {
+                sec_login_throttle_register(true);
+                header('Location: ' . SITE_URL . 'admin/dashboard.php');
+                exit;
+            } else {
+                sec_login_throttle_register(false);
+                $error = 'Username/email atau password salah.';
+            }
         }
     }
 }
@@ -67,18 +75,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form action="" method="POST">
+                <?php echo sec_csrf_field(); ?>
                 <div class="login-input">
                     <i class="fas fa-user"></i>
-                    <input type="text" name="identity" placeholder="Username atau Email" value="<?php echo e($_POST['identity'] ?? ''); ?>">
+                    <input type="text" name="identity" placeholder="Username atau Email" value="<?php echo e($_POST['identity'] ?? ''); ?>" autocomplete="username">
                 </div>
                 <div class="login-input">
                     <i class="fas fa-lock"></i>
-                    <input type="password" name="password" placeholder="Password">
+                    <input type="password" name="password" placeholder="Password" autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-green btn-block" style="width:100%;"><i class="fas fa-sign-in-alt"></i> MASUK</button>
             </form>
-
-            <div class="login-hint">Akun default: <strong>admin</strong> / <strong>admin123</strong></div>
         </div>
         <a href="<?php echo SITE_URL; ?>" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke beranda</a>
     </div>

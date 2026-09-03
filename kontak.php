@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('qrCode');
     if (el && typeof QRCode !== 'undefined') {
         var qr = new QRCode(el, {
-            text: <?php echo json_encode(SCHOOL_MAP_LINK); ?>,
+            text: <?php echo json_encode(SCHOOL_MAP_LINK, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>,
             width: 180,
             height: 180,
             colorDark: '#064e3b',
